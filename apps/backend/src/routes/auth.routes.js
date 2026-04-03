@@ -6,7 +6,7 @@ const { Router } = require('express');
 const { validate } = require('../middleware/validate');
 const { requireAuth, optionalAuth } = require('../middleware/auth');
 const { createRateLimiter } = require('@carverify/security/src/rate-limit');
-const { registerSchema, loginSchema } = require('@carverify/shared');
+const { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } = require('@carverify/shared');
 const { authController } = require('../controllers/auth.controller');
 
 function createAuthRoutes({ redis }) {
@@ -26,6 +26,8 @@ function createAuthRoutes({ redis }) {
   router.post('/register', registerLimiter, validate(registerSchema), authController.register);
   router.post('/login', loginLimiter, validate(loginSchema), authController.login);
   router.post('/logout', requireAuth, authController.logout);
+  router.post('/forgot-password', validate(forgotPasswordSchema), authController.forgotPassword);
+  router.post('/reset-password', validate(resetPasswordSchema), authController.resetPassword);
   // Use optionalAuth - returns user if logged in, null if not
   router.get('/me', optionalAuth, authController.me);
 

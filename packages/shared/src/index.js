@@ -105,6 +105,16 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+const forgotPasswordSchema = z.object({
+  email: z.string().email('Invalid email address'),
+});
+
+const resetPasswordSchema = z.object({
+  email: z.string().email(),
+  otp: z.string().length(6),
+  newPassword: z.string().min(8, 'Password must be at least 8 characters').max(128),
+});
+
 const vehicleSearchSchema = z.object({
   queryInput: z.string().min(3).max(50).transform((v) => v.toUpperCase().replace(/\s/g, '')),
   queryType: z.enum(['vin', 'registration', 'chassis']),
@@ -137,6 +147,6 @@ module.exports = {
   PROVIDER_STATUS, PLAN_LIMITS,
   AppError, ValidationError, AuthError, ForbiddenError, NotFoundError,
   ConflictError, PaymentRequiredError, RateLimitError,
-  registerSchema, loginSchema, vehicleSearchSchema, chatMessageSchema,
+  registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema, vehicleSearchSchema, chatMessageSchema,
   createOrderSchema, createSubscriptionSchema, paginationSchema,
 };
