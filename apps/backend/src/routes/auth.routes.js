@@ -12,15 +12,16 @@ const { authController } = require('../controllers/auth.controller');
 function createAuthRoutes({ redis }) {
   const router = Router();
 
-  const loginLimiter = createRateLimiter(redis, {
-    max: 10, windowMs: 900000, prefix: 'rl:login',
+  // Skip rate limiting entirely in dev mode (redis not required)
+  const loginLimiter = redis ? createRateLimiter(redis, {
+    max: 100, windowMs: 900000, prefix: 'rl:login',
     keyFn: (req) => req.ip,
-  });
+  }) : (req, res, next) => next();
 
-  const registerLimiter = createRateLimiter(redis, {
-    max: 10, windowMs: 3600000, prefix: 'rl:register',
+  const registerLimiter = redis ? createRateLimiter(redis, {
+    max: 100, windowMs: 3600000, prefix: 'rl:register',
     keyFn: (req) => req.ip,
-  });
+  }) : (req, res, next) => next();
 
   router.post('/register', registerLimiter, validate(registerSchema), authController.register);
   router.post('/login', loginLimiter, validate(loginSchema), authController.login);
