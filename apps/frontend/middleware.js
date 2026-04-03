@@ -12,6 +12,10 @@ const PUBLIC_ROUTES = new Set([
   '/register',
   '/privacy',
   '/terms',
+  '/contact',
+  '/checkout',
+  '/forgot-password',
+  '/verify-email',
 ]);
 
 const ADMIN_ROUTES = ['/admin'];
