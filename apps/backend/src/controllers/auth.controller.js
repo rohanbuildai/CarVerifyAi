@@ -9,6 +9,7 @@ const { getEnv } = require('@carverify/config');
 const { ConflictError, AuthError, ROLES, SUB_PLAN } = require('@carverify/shared');
 const { auditFromReq } = require('@carverify/security/src/audit');
 const { createLogger } = require('@carverify/observability');
+const { createTransporter, sendEmail, templates } = require('@carverify/email');
 
 const log = createLogger('auth-controller');
 
@@ -209,23 +210,11 @@ const authController = {
         data: { userId: user.id, otp, expiresAt: new Date(Date.now() + 15 * 60 * 1000) },
       });
 
-      // Send email with OTP via nodemailer (inlined)
+      // Send email with OTP via @carverify/email package
       try {
-        const path = require('path');
-        const nodemailer = require(path.join(__dirname, '../../node_modules/nodemailer/lib/nodemailer.js'));
-        const transporter = nodemailer.createTransport({
-          host: process.env.SMTP_HOST || 'smtp.gmail.com',
-          port: parseInt(process.env.SMTP_PORT) || 587,
-          secure: process.env.SMTP_SECURE === 'true',
-          auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-        });
-        const otpEmail = {
-          subject: 'Reset your CarVerify AI password',
-          text: `Your reset code: ${otp}\n\nExpires in 15 minutes.`,
-          html: `<h1>Reset Password</h1><p>Code: <strong>${otp}</strong></p><p>Expires in 15 min.</p>`,
-        };
-        const from = process.env.EMAIL_FROM || 'CarVerify AI <noreply@carverify.ai>';
-        await transporter.sendMail({ from, to: email, ...otpEmail });
+        const transporter = createTransporter();
+        const otpEmail = templates.passwordReset(otp);
+        await sendEmail(transporter, { to: email, ...otpEmail });
         log.info({ email }, 'OTP email sent');
       } catch (emailErr) {
         log.warn({ email, error: emailErr.message }, 'Failed to send OTP email');
