@@ -194,21 +194,26 @@ const authController = {
    * POST /auth/forgot-password - Send OTP
    */
   async forgotPassword(req, res) {
-    const { email } = req.validated;
-    
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      return res.json({ success: true, message: 'If email exists, OTP sent' });
+    try {
+      const { email } = req.validated;
+      
+      const user = await prisma.user.findUnique({ where: { email } });
+      if (!user) {
+        return res.json({ success: true, message: 'If email exists, OTP sent' });
+      }
+
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      await prisma.passwordReset.create({
+        data: { userId: user.id, otp, expiresAt: new Date(Date.now() + 15 * 60 * 1000) },
+      });
+
+      log.info({ email, otp }, 'Password reset OTP');
+      res.json({ success: true, message: 'OTP sent to email' });
+    } catch (err) {
+      log.error({ err }, 'forgotPassword error');
+      res.status(500).json({ error: { code: 'SERVER_ERROR', message: 'Failed to send OTP' } });
     }
-
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    
-    await prisma.passwordReset.create({
-      data: { userId: user.id, otp, expiresAt: new Date(Date.now() + 15 * 60 * 1000) },
-    });
-
-    log.info({ email, otp }, 'Password reset OTP');
-    res.json({ success: true, message: 'OTP sent to email' });
   },
 
   /**
