@@ -10,6 +10,7 @@
     "packages/observability",
     "packages/security",
     "packages/ai",
+    "packages/email",
     "packages/payments",
     "packages/vehicle-providers",
     "apps/backend",

@@ -44,6 +44,14 @@ const envSchema = z.object({
   RAZORPAY_PLAN_MONTHLY: z.string().optional().default(''),
   RAZORPAY_PLAN_ANNUAL: z.string().optional().default(''),
 
+  // Email (SMTP)
+  EMAIL_FROM: z.string().email().optional(),
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.number().optional(),
+  SMTP_SECURE: z.boolean().optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+
   // Pricing
   PRICE_SINGLE_REPORT: z.coerce.number().default(19900),
   PRICE_MONTHLY_SUB: z.coerce.number().default(49900),
