@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Car, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
@@ -11,7 +11,11 @@ export default function RegisterPage() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/dashboard';
   
-  const { register, isLoading, error, clearError } = useAuthStore();
+  const { register, isLoading, error, clearError, initialize } = useAuthStore();
+
+  React.useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   const [form, setForm] = useState({ name: '', email: '', password: '', phone: '' });
   const [showPassword, setShowPassword] = useState(false);
