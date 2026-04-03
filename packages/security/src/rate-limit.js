@@ -19,6 +19,12 @@ const log = createLogger('rate-limit');
 function createRateLimiter(redis, { max, windowMs, keyFn, prefix = 'rl' }) {
   return async (req, res, next) => {
     try {
+      // Fail open if redis not available
+      if (!redis || redis.status === 'wait' || redis.status === 'close') {
+        log.warn('Redis not connected, skipping rate limiting');
+        return next();
+      }
+
       const key = keyFn ? keyFn(req) : (req.user?.id || req.ip);
       const redisKey = `${prefix}:${key}`;
       const now = Date.now();

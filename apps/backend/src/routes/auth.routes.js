@@ -13,12 +13,12 @@ function createAuthRoutes({ redis }) {
   const router = Router();
 
   const loginLimiter = createRateLimiter(redis, {
-    max: 5, windowMs: 900000, prefix: 'rl:login',
+    max: 10, windowMs: 900000, prefix: 'rl:login',
     keyFn: (req) => req.ip,
   });
 
   const registerLimiter = createRateLimiter(redis, {
-    max: 3, windowMs: 3600000, prefix: 'rl:register',
+    max: 10, windowMs: 3600000, prefix: 'rl:register',
     keyFn: (req) => req.ip,
   });
 
