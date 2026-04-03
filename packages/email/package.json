@@ -1,11 +1,8 @@
 {
   "name": "@carverify/email",
   "version": "1.0.0",
-  "description": "Email service for CarVerify AI",
+  "description": "Simple SMTP email service",
   "main": "src/index.js",
-  "scripts": {
-    "test": "echo \"Email tests not configured\""
-  },
   "dependencies": {
     "nodemailer": "^6.9.8",
     "@carverify/config": "workspace:*",
