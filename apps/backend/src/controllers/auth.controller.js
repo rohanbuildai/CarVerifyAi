@@ -199,6 +199,7 @@ const authController = {
       
       const user = await prisma.user.findUnique({ where: { email } });
       if (!user) {
+        // Don't reveal if email exists
         return res.json({ success: true, message: 'If email exists, OTP sent' });
       }
 
@@ -207,6 +208,17 @@ const authController = {
       await prisma.passwordReset.create({
         data: { userId: user.id, otp, expiresAt: new Date(Date.now() + 15 * 60 * 1000) },
       });
+
+      // Send email with OTP
+      try {
+        const { createTransporter, sendEmail, templates } = require('@carverify/email');
+        const transporter = createTransporter();
+        await sendEmail(transporter, { to: email, ...templates.passwordReset(otp) });
+        log.info({ email }, 'OTP email sent');
+      } catch (emailErr) {
+        // Log but don't fail - OTP still works, user can see it in console
+        log.warn({ email, error: emailErr.message }, 'Failed to send OTP email');
+      }
 
       log.info({ email, otp }, 'Password reset OTP');
       res.json({ success: true, message: 'OTP sent to email' });
