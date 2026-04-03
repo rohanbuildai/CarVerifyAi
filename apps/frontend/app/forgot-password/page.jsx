@@ -8,7 +8,7 @@ import { useAuthStore } from '@/lib/auth-client';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
-  const { forgotPassword, isLoading, error, clearError } = useAuthStore();
+  const { forgotPassword, resetPassword, isLoading, error, clearError } = useAuthStore();
 
   const [email, setEmail] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -34,8 +34,14 @@ export default function ForgotPasswordPage() {
       alert('Passwords do not match');
       return;
     }
-    setSuccess(true);
-    setTimeout(() => router.push('/login'), 2000);
+    
+    try {
+      await resetPassword({ email, otp, newPassword });
+      setSuccess(true);
+      setTimeout(() => router.push('/login'), 2000);
+    } catch {
+      // Error handled by store
+    }
   };
 
   return (

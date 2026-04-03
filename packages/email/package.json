@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "dependencies": {
     "nodemailer": "^6.9.8",
-    "@carverify/config": "workspace:*",
-    "@carverify/observability": "workspace:*"
+    "@carverify/config": "*",
+    "@carverify/observability": "*"
   }
 }

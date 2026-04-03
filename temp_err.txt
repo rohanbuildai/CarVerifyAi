@@ -1,0 +1,99 @@
+﻿node : node:internal/modul
+es/cjs/loader:1424
+At line:1 char:1
++ node apps/backend/src/se
+rver.js 2>&1 | out-file 
+-encoding utf8 temp_e ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (n  
+  ode:internal/modules/   
+ cjs/loader:1424:Strin    
+g) [], RemoteExceptio    n
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+  throw err;
+  ^
+
+Error: Cannot find module 
+'@carverify/email'
+Require stack:
+- C:\Users\Rohan\Desktop\C
+arVerifyAi\apps\backend\sr
+c\controllers\auth.control
+ler.js
+- C:\Users\Rohan\Desktop\C
+arVerifyAi\apps\backend\sr
+c\routes\auth.routes.js
+- C:\Users\Rohan\Desktop\C
+arVerifyAi\apps\backend\sr
+c\routes\index.js
+- C:\Users\Rohan\Desktop\C
+arVerifyAi\apps\backend\sr
+c\app.js
+- C:\Users\Rohan\Desktop\C
+arVerifyAi\apps\backend\sr
+c\server.js
+    at 
+Module._resolveFilename (n
+ode:internal/modules/cjs/l
+oader:1421:15)
+    at defaultResolveImpl 
+(node:internal/modules/cjs
+/loader:1059:19)
+    at 
+resolveForCJSWithHooks (no
+de:internal/modules/cjs/lo
+ader:1064:22)
+    at Module._load (node:
+internal/modules/cjs/loade
+r:1227:37)
+    at 
+TracingChannel.traceSync (
+node:diagnostics_channel:3
+28:14)
+    at wrapModuleLoad (nod
+e:internal/modules/cjs/loa
+der:245:24)
+    at Module.require (nod
+e:internal/modules/cjs/loa
+der:1504:12)
+    at require (node:inter
+nal/modules/helpers:152:16
+)
+    at Object.<anonymous> 
+(C:\Users\Rohan\Desktop\Ca
+rVerifyAi\apps\backend\src
+\controllers\auth.controll
+er.js:12:53)
+    at Module._compile (no
+de:internal/modules/cjs/lo
+ader:1761:14) {
+  code: 
+'MODULE_NOT_FOUND',
+  requireStack: [
+    'C:\\Users\\Rohan\\Des
+ktop\\CarVerifyAi\\apps\\b
+ackend\\src\\controllers\\
+auth.controller.js',
+    'C:\\Users\\Rohan\\Des
+ktop\\CarVerifyAi\\apps\\b
+ackend\\src\\routes\\auth.
+routes.js',
+    'C:\\Users\\Rohan\\Des
+ktop\\CarVerifyAi\\apps\\b
+ackend\\src\\routes\\index
+.js',
+    'C:\\Users\\Rohan\\Des
+ktop\\CarVerifyAi\\apps\\b
+ackend\\src\\app.js',
+    'C:\\Users\\Rohan\\Des
+ktop\\CarVerifyAi\\apps\\b
+ackend\\src\\server.js'
+  ]
+}
+
+Node.js v24.13.0

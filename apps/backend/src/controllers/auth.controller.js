@@ -247,8 +247,13 @@ const authController = {
       return res.status(400).json({ error: { code: 'INVALID_OTP', message: 'Invalid or expired OTP' } });
     }
 
-    const { hash } = await argon2.hash(newPassword, { memoryCost: 65536, timeCost: 3, parallelism: 1 });
-    await prisma.user.update({ where: { id: user.id }, data: { passwordHash: hash } });
+    const passwordHash = await argon2.hash(newPassword, {
+      type: argon2.argon2id,
+      memoryCost: 65536,
+      timeCost: 3,
+      parallelism: 4,
+    });
+    await prisma.user.update({ where: { id: user.id }, data: { passwordHash } });
     await prisma.passwordReset.update({ where: { id: reset.id }, data: { used: true } });
     await prisma.session.deleteMany({ where: { userId: user.id } });
 

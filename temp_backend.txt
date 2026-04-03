@@ -1,0 +1,24 @@
+﻿[2026-04-03 20:32:46.424 +0530] [41mFATAL[49m: [36mUncaught exception ΓÇö shutting down[39m
+    module: "server"
+    err: {
+      "type": "Error",
+      "message": "listen EADDRINUSE: address already in use 0.0.0.0:4000",
+      "stack":
+          Error: listen EADDRINUSE: address already in use 0.0.0.0:4000
+              at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+              at listenInCluster (node:net:1997:12)
+              at node:net:2206:7
+              at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+      "code": "EADDRINUSE",
+      "errno": -4091,
+      "syscall": "listen",
+      "address": "0.0.0.0",
+      "port": 4000
+    }
+[2026-04-03 20:32:46.606 +0530] [32mINFO[39m: [36mShutdown signal received[39m
+    module: "server"
+    signal: "uncaughtException"
+[2026-04-03 20:32:46.607 +0530] [32mINFO[39m: [36mHTTP server closed[39m
+    module: "server"
+[2026-04-03 20:32:46.609 +0530] [32mINFO[39m: [36mAll connections closed[39m
+    module: "server"
