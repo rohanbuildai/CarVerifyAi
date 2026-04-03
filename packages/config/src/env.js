@@ -45,9 +45,10 @@ const envSchema = z.object({
   RAZORPAY_PLAN_ANNUAL: z.string().optional().default(''),
 
   // Email (SMTP)
-  EMAIL_FROM: z.string().email().optional(),
+  // Accepts both "email@example.com" and "Display Name <email@example.com>"
+  EMAIL_FROM: z.string().refine(val => !val || val.includes('@'), { message: 'Invalid email format' }).optional(),
   SMTP_HOST: z.string().optional(),
-  SMTP_PORT: z.number().optional(),
+  SMTP_PORT: z.coerce.number().optional(),
   SMTP_SECURE: z.boolean().optional(),
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
