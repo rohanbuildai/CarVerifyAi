@@ -2,12 +2,15 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Car, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import { useAuthStore } from '@/lib/auth-client';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect') || '/dashboard';
+  
   const { register, isLoading, error, clearError } = useAuthStore();
 
   const [form, setForm] = useState({ name: '', email: '', password: '', phone: '' });
@@ -25,7 +28,7 @@ export default function RegisterPage() {
         ...(form.phone ? { phone: form.phone } : {}),
       });
       // Force hard navigation to clear Next.js client-side router cache of the unauthenticated redirect
-      window.location.href = '/dashboard';
+      window.location.href = redirect;
     } catch {
       // Error handled by store
     }
