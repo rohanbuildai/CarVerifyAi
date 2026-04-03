@@ -11,11 +11,18 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/dashboard';
 
-  const { login, isLoading, error, clearError, initialize } = useAuthStore();
+  const { login, user, isLoading, error, clearError, initialize, isAuthenticated } = useAuthStore();
 
   React.useEffect(() => {
     initialize();
   }, [initialize]);
+
+  // Redirect if already logged in
+  React.useEffect(() => {
+    if (isAuthenticated && user) {
+      window.location.href = redirect;
+    }
+  }, [isAuthenticated, user, redirect]);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
