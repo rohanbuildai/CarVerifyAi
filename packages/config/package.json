@@ -1,0 +1,10 @@
+{
+  "name": "@carverify/config",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/env.js",
+  "dependencies": {
+    "zod": "^3.22.0",
+    "dotenv": "^16.4.0"
+  }
+}

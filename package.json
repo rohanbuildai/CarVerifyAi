@@ -1,0 +1,56 @@
+{
+  "name": "carverify-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered used-car intelligence platform for India",
+  "workspaces": [
+    "packages/shared",
+    "packages/config",
+    "packages/db",
+    "packages/observability",
+    "packages/security",
+    "packages/ai",
+    "packages/payments",
+    "packages/vehicle-providers",
+    "apps/backend",
+    "apps/worker",
+    "apps/frontend"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev -w apps/frontend",
+    "dev:backend": "npm run dev -w apps/backend",
+    "dev:worker": "npm run dev -w apps/worker",
+    "dev": "npm run dev:backend & npm run dev:worker & npm run dev:frontend",
+    "build": "npm run build -w packages/shared -w packages/config -w packages/db -w packages/observability -w packages/security -w packages/ai -w packages/payments -w packages/vehicle-providers && npm run build -w apps/backend -w apps/worker -w apps/frontend",
+    "build:frontend": "npm run build -w apps/frontend",
+    "build:backend": "npm run build -w apps/backend",
+    "build:worker": "npm run build -w apps/worker",
+    "lint": "eslint . --ext .js,.jsx",
+    "lint:fix": "eslint . --ext .js,.jsx --fix",
+    "test": "jest --passWithNoTests",
+    "test:unit": "jest --testPathPattern=unit --passWithNoTests",
+    "test:integration": "jest --testPathPattern=integration --passWithNoTests",
+    "test:e2e": "jest --testPathPattern=e2e --passWithNoTests",
+    "db:generate": "npm run generate -w packages/db",
+    "db:migrate": "npm run migrate -w packages/db",
+    "db:seed": "npm run seed -w packages/db",
+    "db:studio": "npm run studio -w packages/db",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:build": "docker compose build",
+    "clean": "rimraf node_modules apps/*/node_modules packages/*/node_modules"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.2.0",
+    "rimraf": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

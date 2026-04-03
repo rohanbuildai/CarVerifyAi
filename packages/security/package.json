@@ -1,0 +1,9 @@
+{
+  "name": "@carverify/security",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/rate-limit.js",
+  "dependencies": {
+    "ioredis": "^5.3.0"
+  }
+}

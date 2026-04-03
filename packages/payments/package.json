@@ -1,0 +1,11 @@
+{
+  "name": "@carverify/payments",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.js",
+  "dependencies": {
+    "razorpay": "^2.9.0",
+    "@carverify/config": "*",
+    "@carverify/observability": "*"
+  }
+}

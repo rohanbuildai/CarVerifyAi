@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: carverify
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: carverify/backend:latest
+          ports:
+            - containerPort: 4000
+          envFrom:
+            - configMapRef:
+                name: carverify-config
+            - secretRef:
+                name: carverify-secrets
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 4000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /api/v1/ready
+              port: 4000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: carverify
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 4000
+      targetPort: 4000
+  type: ClusterIP

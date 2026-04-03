@@ -1,0 +1,12 @@
+{
+  "name": "@carverify/ai",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.js",
+  "dependencies": {
+    "openai": "^4.28.0",
+    "zod": "^3.22.0",
+    "@carverify/config": "*",
+    "@carverify/observability": "*"
+  }
+}

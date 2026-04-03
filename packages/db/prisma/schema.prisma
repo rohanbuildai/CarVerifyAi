@@ -1,0 +1,484 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  passwordHash  String
+  name          String?
+  phone         String?   @unique
+  role          String    @default("user")
+  status        String    @default("active")
+  preferredLang String    @default("en")
+  avatarUrl     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  sessions       Session[]
+  vehicleQueries VehicleQuery[]
+  subscriptions  Subscription[]
+  paymentOrders  PaymentOrder[]
+  usageQuotas    UsageQuota[]
+  auditLogs      AuditLog[]
+
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  userAgent String?  @db.Text
+  ipAddress String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model Vehicle {
+  id               String    @id @default(cuid())
+  vin              String?   @unique
+  chassisNumber    String?
+  registrationNo   String?   @unique
+  make             String?
+  model            String?
+  year             Int?
+  fuelType         String?
+  color            String?
+  engineCapacityCc Int?
+  bodyType         String?
+  state            String?
+  rtoCode          String?
+  firstRegisteredAt DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  queries VehicleQuery[]
+
+  @@index([vin])
+  @@index([registrationNo])
+  @@map("vehicles")
+}
+
+model VehicleQuery {
+  id              String    @id @default(cuid())
+  userId          String
+  vehicleId       String?
+  queryInput      String
+  queryType       String
+  status          String    @default("pending")
+  idempotencyKey  String    @unique
+  providersFetched Int      @default(0)
+  providersTotal   Int      @default(0)
+  completedAt     DateTime?
+  failedAt        DateTime?
+  failureReason   String?   @db.Text
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user            User               @relation(fields: [userId], references: [id])
+  vehicle         Vehicle?           @relation(fields: [vehicleId], references: [id])
+  providerResults VehicleProviderResult[]
+  ownershipRecords OwnershipRecord[]
+  insuranceClaims InsuranceClaimSignal[]
+  serviceRecords  ServiceRecord[]
+  partsSnapshots  PartsPriceSnapshot[]
+  riskReport      RiskReport?
+
+  @@index([userId])
+  @@index([vehicleId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("vehicle_queries")
+}
+
+model VehicleProviderResult {
+  id             String   @id @default(cuid())
+  queryId        String
+  providerName   String
+  providerType   String
+  status         String
+  rawPayload     Json?
+  normalizedData Json?
+  confidenceScore Float?
+  latencyMs      Int?
+  freshnessAt    DateTime?
+  failureReason  String?  @db.Text
+  retryCount     Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  query VehicleQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
+
+  @@index([queryId])
+  @@index([providerName])
+  @@map("vehicle_provider_results")
+}
+
+model OwnershipRecord {
+  id           String    @id @default(cuid())
+  queryId      String
+  ownerIndex   Int
+  ownerType    String?
+  state        String?
+  city         String?
+  transferDate DateTime?
+  source       String?
+  confidence   Float?
+  createdAt    DateTime  @default(now())
+
+  query VehicleQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
+
+  @@index([queryId])
+  @@map("ownership_records")
+}
+
+model InsuranceClaimSignal {
+  id          String    @id @default(cuid())
+  queryId     String
+  claimType   String?
+  severity    String?
+  claimDate   DateTime?
+  claimAmount Float?
+  settled     Boolean?
+  source      String?
+  confidence  Float?
+  createdAt   DateTime  @default(now())
+
+  query VehicleQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
+
+  @@index([queryId])
+  @@map("insurance_claim_signals")
+}
+
+model ServiceRecord {
+  id          String    @id @default(cuid())
+  queryId     String
+  serviceType String?
+  description String?   @db.Text
+  serviceDate DateTime?
+  odometerKm  Int?
+  cost        Float?
+  source      String?
+  confidence  Float?
+  createdAt   DateTime  @default(now())
+
+  query VehicleQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
+
+  @@index([queryId])
+  @@map("service_records")
+}
+
+model PartsPriceSnapshot {
+  id           String   @id @default(cuid())
+  queryId      String
+  partName     String
+  category     String?
+  oemPriceInr  Float?
+  aftermktPrice Float?
+  avgLifeKm    Int?
+  source       String?
+  confidence   Float?
+  fetchedAt    DateTime @default(now())
+
+  query VehicleQuery @relation(fields: [queryId], references: [id], onDelete: Cascade)
+
+  @@index([queryId])
+  @@map("parts_price_snapshots")
+}
+
+model RiskReport {
+  id                String    @id @default(cuid())
+  queryId           String    @unique
+  overallRiskScore  Float?
+  riskVerdict       String?
+  verdictEn         String?   @db.Text
+  verdictHi         String?   @db.Text
+  maintenanceCost1y Float?
+  maintenanceCost3y Float?
+  dataCompleteness  Float?
+  modelVersion      String?
+  generatedAt       DateTime?
+  status            String    @default("pending")
+  isPaid            Boolean   @default(false)
+  paidAt            DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  query         VehicleQuery    @relation(fields: [queryId], references: [id], onDelete: Cascade)
+  sections      ReportSection[]
+  conversations AiConversation[]
+
+  @@index([queryId])
+  @@index([status])
+  @@index([isPaid])
+  @@map("risk_reports")
+}
+
+model ReportSection {
+  id          String  @id @default(cuid())
+  reportId    String
+  sectionType String
+  titleEn     String
+  titleHi     String?
+  contentEn   String  @db.LongText
+  contentHi   String? @db.LongText
+  sortOrder   Int
+  isFree      Boolean @default(false)
+  createdAt   DateTime @default(now())
+
+  report RiskReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+  @@map("report_sections")
+}
+
+model AiConversation {
+  id        String   @id @default(cuid())
+  reportId  String
+  userId    String
+  title     String?
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  report   RiskReport  @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  messages AiMessage[]
+
+  @@index([reportId])
+  @@index([userId])
+  @@map("ai_conversations")
+}
+
+model AiMessage {
+  id             String   @id @default(cuid())
+  conversationId String
+  role           String
+  content        String   @db.LongText
+  tokensUsed     Int?
+  modelUsed      String?
+  latencyMs      Int?
+  createdAt      DateTime @default(now())
+
+  conversation AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@map("ai_messages")
+}
+
+model Subscription {
+  id                      String    @id @default(cuid())
+  userId                  String
+  razorpaySubscriptionId  String?   @unique
+  plan                    String
+  status                  String
+  currentPeriodStart      DateTime?
+  currentPeriodEnd        DateTime?
+  reportsPerMonth         Int       @default(0)
+  reportsUsedThisMonth    Int       @default(0)
+  cancelledAt             DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id])
+  invoices Invoice[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("subscriptions")
+}
+
+model PaymentOrder {
+  id                String   @id @default(cuid())
+  userId            String
+  razorpayOrderId   String?  @unique
+  razorpayPaymentId String?
+  type              String
+  amountInr         Int
+  currency          String   @default("INR")
+  status            String
+  reportId          String?
+  metadata          Json?
+  idempotencyKey    String   @unique
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user   User           @relation(fields: [userId], references: [id])
+  events PaymentEvent[]
+
+  @@index([userId])
+  @@index([razorpayOrderId])
+  @@index([status])
+  @@map("payment_orders")
+}
+
+model PaymentEvent {
+  id          String    @id @default(cuid())
+  orderId     String
+  eventType   String
+  rawPayload  Json
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  order PaymentOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("payment_events")
+}
+
+model Invoice {
+  id             String    @id @default(cuid())
+  subscriptionId String
+  amountInr      Int
+  gstAmountInr   Int       @default(0)
+  totalInr       Int
+  status         String
+  issuedAt       DateTime?
+  paidAt         DateTime?
+  invoiceNumber  String?   @unique
+  createdAt      DateTime  @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+
+  @@index([subscriptionId])
+  @@map("invoices")
+}
+
+model UsageQuota {
+  id          String   @id @default(cuid())
+  userId      String
+  quotaType   String
+  limitValue  Int
+  usedValue   Int      @default(0)
+  periodStart DateTime
+  periodEnd   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, quotaType, periodStart])
+  @@index([userId])
+  @@map("usage_quotas")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  resource   String?
+  resourceId String?
+  metadata   Json?
+  ipAddress  String?
+  userAgent  String?  @db.Text
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model FeatureFlag {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  enabled     Boolean  @default(false)
+  description String?  @db.Text
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("feature_flags")
+}
+
+model AdminAction {
+  id         String   @id @default(cuid())
+  adminId    String
+  action     String
+  targetType String?
+  targetId   String?
+  reason     String?  @db.Text
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([adminId])
+  @@index([createdAt])
+  @@map("admin_actions")
+}
+
+model FailedJob {
+  id         String    @id @default(cuid())
+  queueName  String
+  jobId      String
+  jobData    Json
+  error      String    @db.Text
+  stackTrace String?   @db.LongText
+  retryCount Int       @default(0)
+  resolvedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([queueName])
+  @@index([createdAt])
+  @@map("failed_jobs")
+}
+
+model WebhookReceived {
+  id             String    @id @default(cuid())
+  source         String
+  eventType      String
+  idempotencyKey String    @unique
+  rawPayload     Json
+  verified       Boolean   @default(false)
+  processedAt    DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([source])
+  @@index([idempotencyKey])
+  @@map("webhooks_received")
+}
+
+model IdempotencyKey {
+  id         String   @id @default(cuid())
+  key        String   @unique
+  response   Json?
+  statusCode Int?
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([key])
+  @@index([expiresAt])
+  @@map("idempotency_keys")
+}
+
+model DataRetentionJob {
+  id              String    @id @default(cuid())
+  jobType         String
+  status          String    @default("pending")
+  recordsAffected Int?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  error           String?   @db.Text
+  createdAt       DateTime  @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("data_retention_jobs")
+}

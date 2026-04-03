@@ -1,0 +1,20 @@
+{
+  "name": "@carverify/worker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "build": "echo 'No build step for worker JS'"
+  },
+  "dependencies": {
+    "bullmq": "^5.4.0",
+    "ioredis": "^5.3.0",
+    "@carverify/shared": "*",
+    "@carverify/config": "*",
+    "@carverify/db": "*",
+    "@carverify/observability": "*",
+    "@carverify/ai": "*",
+    "@carverify/vehicle-providers": "*"
+  }
+}
