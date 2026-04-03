@@ -48,6 +48,11 @@ export class ApiError extends Error {
 }
 
 /**
+ * Default request timeout in milliseconds
+ */
+const REQUEST_TIMEOUT_MS = 15000;
+
+/**
  * Makes an HTTP request to the backend API.
  * @param {string} method - HTTP method
  * @param {string} path - API path (appended to base URL)
@@ -55,11 +60,19 @@ export class ApiError extends Error {
  * @param {any} [options.body] - Request body (will be JSON stringified)
  * @param {Record<string, string>} [options.headers] - Additional headers
  * @param {AbortSignal} [options.signal] - Abort signal
+ * @param {number} [options.timeout] - Request timeout in milliseconds (default: 15000)
  * @returns {Promise<any>} Parsed JSON response
  * @throws {ApiError} On non-2xx responses
  */
-async function request(method, path, { body, headers, signal } = {}) {
+async function request(method, path, { body, headers, signal, timeout = REQUEST_TIMEOUT_MS } = {}) {
   const url = `${API_BASE}${path}`;
+
+  // Create abort controller for timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  // Use provided signal or controller signal
+  const combinedSignal = signal ? signal : controller.signal;
 
   const config = {
     method,
@@ -69,7 +82,7 @@ async function request(method, path, { body, headers, signal } = {}) {
       ...headers,
     },
     credentials: 'include',
-    signal,
+    signal: combinedSignal,
   };
 
   if (body !== undefined && method !== 'GET') {
@@ -79,9 +92,11 @@ async function request(method, path, { body, headers, signal } = {}) {
   let res;
   try {
     res = await fetch(url, config);
+    clearTimeout(timeoutId);
   } catch (err) {
+    clearTimeout(timeoutId);
     if (err.name === 'AbortError') {
-      throw err;
+      throw new ApiError(0, { message: 'Request timed out. Please try again.' });
     }
     throw new ApiError(0, { message: 'Network error. Please check your connection.' });
   }
