@@ -212,7 +212,7 @@ const authController = {
       // Send email with OTP via nodemailer (inlined)
       try {
         const path = require('path');
-        const nodemailer = require(path.join(__dirname, '../../node_modules/nodemailer'));
+        const nodemailer = require(path.join(__dirname, '../../node_modules/nodemailer/lib/nodemailer.js'));
         const transporter = nodemailer.createTransport({
           host: process.env.SMTP_HOST || 'smtp.gmail.com',
           port: parseInt(process.env.SMTP_PORT) || 587,
