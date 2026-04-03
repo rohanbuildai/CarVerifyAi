@@ -189,6 +189,54 @@ const authController = {
   async me(req, res) {
     res.json({ user: req.user });
   },
+
+  /**
+   * POST /auth/forgot-password - Send OTP
+   */
+  async forgotPassword(req, res) {
+    const { email } = req.validated;
+    
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res.json({ success: true, message: 'If email exists, OTP sent' });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    await prisma.passwordReset.create({
+      data: { userId: user.id, otp, expiresAt: new Date(Date.now() + 15 * 60 * 1000) },
+    });
+
+    log.info({ email, otp }, 'Password reset OTP');
+    res.json({ success: true, message: 'OTP sent to email' });
+  },
+
+  /**
+   * POST /auth/reset-password - Reset with OTP
+   */
+  async resetPassword(req, res) {
+    const { email, otp, newPassword } = req.validated;
+    
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res.status(400).json({ error: { code: 'INVALID_OTP', message: 'Invalid OTP' } });
+    }
+
+    const reset = await prisma.passwordReset.findFirst({
+      where: { userId: user.id, otp, used: false },
+    });
+
+    if (!reset || new Date() > reset.expiresAt) {
+      return res.status(400).json({ error: { code: 'INVALID_OTP', message: 'Invalid or expired OTP' } });
+    }
+
+    const { hash } = await argon2.hash(newPassword, { memoryCost: 65536, timeCost: 3, parallelism: 1 });
+    await prisma.user.update({ where: { id: user.id }, data: { passwordHash: hash } });
+    await prisma.passwordReset.update({ where: { id: reset.id }, data: { used: true } });
+    await prisma.session.deleteMany({ where: { userId: user.id } });
+
+    res.json({ success: true, message: 'Password reset successful' });
+  },
 };
 
 module.exports = { authController };

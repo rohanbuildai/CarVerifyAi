@@ -482,3 +482,15 @@ model DataRetentionJob {
   @@index([createdAt])
   @@map("data_retention_jobs")
 }
+
+model PasswordReset {
+  id         String   @id @default(cuid())
+  userId     String
+  otp        String
+  used       Boolean  @default(false)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([userId, otp])
+  @@map("password_resets")
+}
