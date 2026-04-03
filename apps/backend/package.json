@@ -27,6 +27,7 @@
     "@carverify/security": "*",
     "@carverify/payments": "*",
     "@carverify/ai": "*",
-    "@carverify/vehicle-providers": "*"
+    "@carverify/vehicle-providers": "*",
+    "@carverify/email": "*"
   }
 }
