@@ -211,7 +211,9 @@ const authController = {
 
       // Send email with OTP
       try {
-        const emailPath = require.resolve('@carverify/email');
+        // Use absolute path
+        const path = require('path');
+        const emailPath = path.join(__dirname, '../../packages/email/src/index.js');
         const { createTransporter, sendEmail, templates } = require(emailPath);
         const transporter = createTransporter();
         await sendEmail(transporter, { to: email, ...templates.passwordReset(otp) });
