@@ -211,9 +211,9 @@ const authController = {
 
       // Send email with OTP
       try {
-        // Use absolute path
+        // Use absolute path (backend/src/controllers -> root)
         const path = require('path');
-        const emailPath = path.join(__dirname, '../../packages/email/src/index.js');
+        const emailPath = path.join(__dirname, '../../../../packages/email/src/index.js');
         const { createTransporter, sendEmail, templates } = require(emailPath);
         const transporter = createTransporter();
         await sendEmail(transporter, { to: email, ...templates.passwordReset(otp) });
