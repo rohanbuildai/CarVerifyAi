@@ -209,17 +209,24 @@ const authController = {
         data: { userId: user.id, otp, expiresAt: new Date(Date.now() + 15 * 60 * 1000) },
       });
 
-      // Send email with OTP
+      // Send email with OTP via nodemailer (inlined)
       try {
-        // Use absolute path (backend/src/controllers -> root)
-        const path = require('path');
-        const emailPath = path.join(__dirname, '../../../../packages/email/src/index.js');
-        const { createTransporter, sendEmail, templates } = require(emailPath);
-        const transporter = createTransporter();
-        await sendEmail(transporter, { to: email, ...templates.passwordReset(otp) });
+        const nodemailer = require('nodemailer');
+        const transporter = nodemailer.createTransport({
+          host: process.env.SMTP_HOST || 'smtp.gmail.com',
+          port: parseInt(process.env.SMTP_PORT) || 587,
+          secure: process.env.SMTP_SECURE === 'true',
+          auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+        });
+        const otpEmail = {
+          subject: 'Reset your CarVerify AI password',
+          text: `Your reset code: ${otp}\n\nExpires in 15 minutes.`,
+          html: `<h1>Reset Password</h1><p>Code: <strong>${otp}</strong></p><p>Expires in 15 min.</p>`,
+        };
+        const from = process.env.EMAIL_FROM || 'CarVerify AI <noreply@carverify.ai>';
+        await transporter.sendMail({ from, to: email, ...otpEmail });
         log.info({ email }, 'OTP email sent');
       } catch (emailErr) {
-        // Log but don't fail - OTP still works, user can see it in console
         log.warn({ email, error: emailErr.message }, 'Failed to send OTP email');
       }
 

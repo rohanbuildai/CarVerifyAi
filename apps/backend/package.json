@@ -19,6 +19,7 @@
     "bullmq": "^5.4.0",
     "zod": "^3.22.0",
     "crypto": "*",
+    "nodemailer": "^6.9.8",
     "@carverify/shared": "*",
     "@carverify/config": "*",
     "@carverify/db": "*",
@@ -26,7 +27,6 @@
     "@carverify/security": "*",
     "@carverify/payments": "*",
     "@carverify/ai": "*",
-    "@carverify/email": "*",
     "@carverify/vehicle-providers": "*"
   }
 }
