@@ -2,28 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, CreditCard, Check, Loader2, AlertCircle, Crown, X, ArrowRight } from 'lucide-react';
+import { ArrowLeft, CreditCard, Check, Loader2, AlertCircle, Crown, X } from 'lucide-react';
 import { paymentApi } from '@/lib/api-client';
 import { useAuthStore } from '@/lib/auth-client';
 
-const PLANS = {
-  single: { name: 'Single Report', price: 19900, priceDisplay: '₹199', period: 'one-time' },
-  monthly: { name: 'Pro Monthly', price: 49900, priceDisplay: '₹499', period: '/month', popular: true },
-  annual: { name: 'Pro Annual', price: 499900, priceDisplay: '₹4,999', period: '/year', badge: 'Save 17%' },
-};
-
 export default function BillingPage() {
   const { initialize, user } = useAuthStore();
-  const searchParams = useSearchParams();
-  const planParam = searchParams.get('plan');
-  
   const [sub, setSub] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelling, setCancelling] = useState(false);
-  const [purchasing, setPurchasing] = useState(false);
 
   useEffect(() => { initialize(); }, [initialize]);
 
@@ -48,27 +37,9 @@ export default function BillingPage() {
     finally { setCancelling(false); }
   };
 
-  const handlePurchase = async () => {
-    if (!planParam || !PLANS[planParam]) return;
-    setPurchasing(true);
-    try {
-      // Create payment order - in real app would get Razorpay order ID
-      const order = await paymentApi.createOrder({ plan: planParam });
-      // For now, just show success since we don't have Razorpay integrated
-      alert(`Order created! Plan: ${PLANS[planParam].name}`);
-    } catch (err) {
-      alert('Failed to create order. Please try again.');
-    }
-    setPurchasing(false);
-  };
-
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 text-brand-400 animate-spin" /></div>;
   }
-
-  // Show plan selection if plan param is present and user is on free plan
-  const selectedPlan = planParam && PLANS[planParam] ? PLANS[planParam] : null;
-  const showPlanSelection = selectedPlan && (!sub || sub.plan === 'free');
 
   return (
     <div className="min-h-screen pb-20">
@@ -83,36 +54,6 @@ export default function BillingPage() {
       <div className="section max-w-4xl pt-8">
         <h1 className="font-display font-bold text-2xl text-white mb-2">Billing & Subscription</h1>
         <p className="text-surface-400 text-sm mb-8">Manage your plan and payment history.</p>
-
-        {/* Plan Selection - If user clicked on a plan from pricing page */}
-        {showPlanSelection && (
-          <div className="card mb-8 border-brand-500/50 bg-brand-500/5">
-            <div className="flex items-center gap-3 mb-4">
-              {selectedPlan.badge && (
-                <span className="px-2 py-0.5 rounded-full bg-accent-500/20 text-accent-400 text-xs font-medium">
-                  {selectedPlan.badge}
-                </span>
-              )}
-              <h2 className="font-display font-bold text-xl text-white">{selectedPlan.name}</h2>
-            </div>
-            <div className="flex items-baseline gap-2 mb-4">
-              <span className="font-display font-extrabold text-3xl text-white">{selectedPlan.priceDisplay}</span>
-              <span className="text-surface-500">{selectedPlan.period}</span>
-            </div>
-            <p className="text-sm text-surface-400 mb-4">Complete your purchase to activate this plan.</p>
-            <button 
-              onClick={handlePurchase}
-              disabled={purchasing}
-              className="btn-primary"
-            >
-              {purchasing ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
-              ) : (
-                <><CreditCard className="w-4 h-4" /> Purchase Now</>
-              )}
-            </button>
-          </div>
-        )}
 
         {/* Current Plan */}
         <div className="card mb-8">
