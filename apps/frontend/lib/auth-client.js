@@ -133,6 +133,44 @@ export const useAuthStore = create((set, get) => ({
   },
 
   /**
+   * Send password reset OTP to email.
+   * @param {string} email
+   */
+  forgotPassword: async (email) => {
+    try {
+      set({ isLoading: true, error: null });
+      await authApi.forgotPassword({ email });
+      set({ isLoading: false });
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : 'Failed to send OTP. Please try again.';
+      set({ isLoading: false, error: message });
+      throw err;
+    }
+  },
+
+  /**
+   * Reset password with OTP.
+   * @param {{ email: string, otp: string, newPassword: string }} data
+   */
+  resetPassword: async ({ email, otp, newPassword }) => {
+    try {
+      set({ isLoading: true, error: null });
+      await authApi.resetPassword({ email, otp, newPassword });
+      set({ isLoading: false });
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : 'Failed to reset password. Please try again.';
+      set({ isLoading: false, error: message });
+      throw err;
+    }
+  },
+
+  /**
    * Clear error state.
    */
   clearError: () => set({ error: null }),
