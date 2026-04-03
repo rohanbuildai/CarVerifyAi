@@ -24,7 +24,8 @@ export default function RegisterPage() {
         password: form.password,
         ...(form.phone ? { phone: form.phone } : {}),
       });
-      router.push('/dashboard');
+      // Force hard navigation to clear Next.js client-side router cache of the unauthenticated redirect
+      window.location.href = '/dashboard';
     } catch {
       // Error handled by store
     }

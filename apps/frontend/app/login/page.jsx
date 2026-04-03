@@ -21,7 +21,8 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       await login({ email, password });
-      router.push(redirect);
+      // Force hard navigation to clear Next.js client-side router cache of the unauthenticated redirect
+      window.location.href = redirect;
     } catch {
       // Error handled by store
     }

@@ -4,7 +4,7 @@
  * Provides typed error handling and response normalization.
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000/api/v1';
+const API_BASE = typeof window !== 'undefined' ? '/api/v1' : (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000/api/v1');
 
 /**
  * Custom API error with status code and structured error body.

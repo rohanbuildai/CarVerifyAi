@@ -20,7 +20,7 @@
     "dev:frontend": "npm run dev -w apps/frontend",
     "dev:backend": "npm run dev -w apps/backend",
     "dev:worker": "npm run dev -w apps/worker",
-    "dev": "npm run dev:backend & npm run dev:worker & npm run dev:frontend",
+    "dev": "concurrently -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"npm run dev:backend\" \"npm run dev:worker\" \"npm run dev:frontend\"",
     "build": "npm run build -w packages/shared -w packages/config -w packages/db -w packages/observability -w packages/security -w packages/ai -w packages/payments -w packages/vehicle-providers && npm run build -w apps/backend -w apps/worker -w apps/frontend",
     "build:frontend": "npm run build -w apps/frontend",
     "build:backend": "npm run build -w apps/backend",
@@ -41,6 +41,7 @@
     "clean": "rimraf node_modules apps/*/node_modules packages/*/node_modules"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.33.2",
